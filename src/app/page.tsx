@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-type Status = "Good" | "Too long" | "Too short";
+type Status = "Good" | "Too Long" | "Too Short";
 
 type WarningItem = {
   id: string;
@@ -133,9 +133,9 @@ function getStatus(
   max: number,
   pixels?: number
 ): Status {
-  if (!value.length || value.length < min) return "Too short";
-  if (value.length > max) return "Too long";
-  if (typeof pixels === "number" && pixels > TITLE_PIXEL_LIMIT) return "Too long";
+  if (!value.length || value.length < min) return "Too Short";
+  if (value.length > max) return "Too Long";
+  if (typeof pixels === "number" && pixels > TITLE_PIXEL_LIMIT) return "Too Long";
   return "Good";
 }
 
@@ -143,7 +143,7 @@ function statusBadgeClasses(status: Status) {
   if (status === "Good") {
     return "bg-emerald-100 text-emerald-800 border-emerald-200";
   }
-  if (status === "Too long") {
+  if (status === "Too Long") {
     return "bg-red-100 text-red-700 border-red-200";
   }
   return "bg-amber-100 text-amber-800 border-amber-200";
@@ -151,7 +151,12 @@ function statusBadgeClasses(status: Status) {
 
 function StatusBadge({ status }: { status: Status }) {
   return (
-    <Badge className={cn("border px-3 py-1 text-xs font-medium", statusBadgeClasses(status))}>
+    <Badge
+      className={cn(
+        "border px-3 py-1 text-xs font-medium whitespace-nowrap pointer-events-none hover:bg-inherit hover:text-inherit",
+        statusBadgeClasses(status)
+      )}
+    >
       {status}
     </Badge>
   );
@@ -161,14 +166,17 @@ function WarningsPanel({ warnings }: { warnings: WarningItem[] }) {
   const lockedButton = (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          variant="secondary"
-          className="gap-2 bg-muted text-foreground opacity-70"
-          aria-disabled
-        >
-          <Lock className="h-4 w-4" />
-          Apply fix
-        </Button>
+        <span className="inline-flex">
+          <Button
+            variant="secondary"
+            disabled
+            aria-disabled
+            className="gap-2 bg-muted text-foreground opacity-70"
+          >
+            <Lock className="h-4 w-4" />
+            Apply fix
+          </Button>
+        </span>
       </TooltipTrigger>
       <TooltipContent>Available on Pro. Upgrade to unlock.</TooltipContent>
     </Tooltip>
@@ -323,7 +331,7 @@ export default function Home() {
 
   const warnings: WarningItem[] = useMemo(() => {
     const issues: WarningItem[] = [];
-    if (titleStatus === "Too long") {
+    if (titleStatus === "Too Long") {
       issues.push({
         id: "title-long",
         title: "Title too long",
@@ -332,7 +340,7 @@ export default function Home() {
         fix: "Trim to 55-65 characters and keep the main keyword near the front.",
       });
     }
-    if (titleStatus === "Too short" && title.length > 0) {
+    if (titleStatus === "Too Short" && title.length > 0) {
       issues.push({
         id: "title-short",
         title: "Title might be too short",
@@ -341,7 +349,7 @@ export default function Home() {
         fix: "Aim for at least 35-50 characters with a clear value hook.",
       });
     }
-    if (descriptionStatus === "Too long") {
+    if (descriptionStatus === "Too Long") {
       issues.push({
         id: "description-long",
         title: "Description too long",
@@ -350,7 +358,7 @@ export default function Home() {
         fix: "Keep the hook within 120-155 characters for most devices.",
       });
     }
-    if (descriptionStatus === "Too short" && description.length > 0) {
+    if (descriptionStatus === "Too Short" && description.length > 0) {
       issues.push({
         id: "description-short",
         title: "Description might be too short",

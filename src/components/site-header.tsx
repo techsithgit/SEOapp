@@ -22,10 +22,12 @@ export function SiteHeader() {
           <Link href="/pricing" className={navLinkStyles}>
             Pricing
           </Link>
-          <Link href="#" className={navLinkStyles}>
+          <Link href="/login" className={navLinkStyles}>
             Login
           </Link>
-          <Button>Upgrade</Button>
+          <Button asChild>
+            <Link href="/pricing">Upgrade</Link>
+          </Button>
         </div>
       </div>
     </header>

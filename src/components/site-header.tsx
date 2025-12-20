@@ -32,7 +32,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-3 py-3 sm:px-4 sm:gap-4 overflow-hidden">
+      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-3 py-3 sm:px-4 sm:gap-4">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm overflow-hidden">
             <Image src="/logo.svg" alt="Serpify logo" width={40} height={40} priority />
@@ -70,7 +70,7 @@ export function SiteHeader() {
                 <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </Button>
               {menuOpen ? (
-                <div className="absolute right-0 mt-2 w-48 rounded-lg border bg-white p-2 shadow-md">
+                <div className="absolute right-0 mt-2 w-48 rounded-lg border bg-white p-2 shadow-md z-50">
                   <div className="mb-2 rounded-md bg-muted/60 px-3 py-2">
                     <p className="text-sm font-semibold text-foreground truncate">
                       {session.user?.name ?? session.user?.email}

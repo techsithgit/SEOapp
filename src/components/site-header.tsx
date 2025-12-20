@@ -29,7 +29,7 @@ export function SiteHeader() {
           </div>
         </Link>
         <div className="flex flex-shrink-0 items-center justify-end gap-2 sm:gap-3">
-          <Link href="/pricing" className={navLinkStyles}>
+          <Link href="/pricing" className={`${navLinkStyles} hidden sm:inline-block`}>
             Pricing
           </Link>
           {session ? (
@@ -51,11 +51,23 @@ export function SiteHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="px-3 text-xs sm:text-sm"
+                className="hidden px-3 text-xs sm:inline-flex sm:text-sm"
               >
                 Sign out
               </Button>
-              <Button asChild size="sm" className="px-3 text-xs sm:text-sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="px-2 text-[11px] sm:hidden"
+              >
+                Out
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="px-3 text-[11px] sm:text-sm whitespace-nowrap"
+              >
                 <Link href="/pricing">Upgrade</Link>
               </Button>
             </div>
@@ -67,7 +79,7 @@ export function SiteHeader() {
               <Button
                 asChild
                 size="sm"
-                className="ml-1 px-3 text-xs sm:ml-2 sm:text-sm"
+                className="ml-1 px-3 text-[11px] sm:ml-2 sm:text-sm whitespace-nowrap"
               >
                 <Link href="/pricing">Upgrade</Link>
               </Button>

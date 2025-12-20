@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
 const navLinkStyles =
-  "text-sm font-medium text-muted-foreground transition hover:text-foreground";
+  "text-xs sm:text-sm font-medium text-muted-foreground transition hover:text-foreground";
 
 export function SiteHeader() {
   const { data: session } = useSession();
@@ -18,7 +18,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-4 py-3 sm:gap-4">
+      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-3 py-3 sm:px-4 sm:gap-4 overflow-hidden">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm overflow-hidden">
             <Image src="/logo.svg" alt="Serpify logo" width={40} height={40} priority />
@@ -51,11 +51,11 @@ export function SiteHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="px-3"
+                className="px-3 text-xs sm:text-sm"
               >
                 Sign out
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="px-3 text-xs sm:text-sm">
                 <Link href="/pricing">Upgrade</Link>
               </Button>
             </div>
@@ -64,7 +64,11 @@ export function SiteHeader() {
               <Link href="/login" className={navLinkStyles}>
                 Login
               </Link>
-              <Button asChild size="sm" className="ml-1 sm:ml-2">
+              <Button
+                asChild
+                size="sm"
+                className="ml-1 px-3 text-xs sm:ml-2 sm:text-sm"
+              >
                 <Link href="/pricing">Upgrade</Link>
               </Button>
             </>

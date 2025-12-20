@@ -31,7 +31,7 @@ export function SiteHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-3 py-3 sm:px-4 sm:gap-4 overflow-hidden">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm overflow-hidden">

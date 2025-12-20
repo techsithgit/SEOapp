@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
@@ -19,11 +20,11 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm">
-            S
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm overflow-hidden">
+            <Image src="/logo.svg" alt="Serpify logo" width={40} height={40} priority />
           </div>
           <div className="leading-tight">
-            <p className="text-lg font-semibold text-foreground">SnippetLab</p>
+            <p className="text-lg font-semibold text-foreground">Serpify</p>
             <p className="text-xs text-muted-foreground">Google SERP Preview</p>
           </div>
         </Link>

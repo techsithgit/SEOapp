@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Serpify logo">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#g)"/>
+  <path d="M20 26c0-5.5 4.1-9 10-9h4c6 0 10 3.4 10 8.6 0 3.6-2.3 6.1-6 7.4l-11 3.8c-2.6.9-4 2.3-4 4.5C23 43.9 25 46 28.5 46H34c5.2 0 8-2.4 8-6.9" fill="none" stroke="#ecfeff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="36" cy="20" r="3" fill="#ecfeff"/>
+</svg>

@@ -53,7 +53,7 @@ const DESCRIPTION_MIN_CHARS = 110;
 const DESCRIPTION_MAX_CHARS = 165;
 const DESCRIPTION_PREVIEW_LIMIT = 156;
 const MOBILE_DESCRIPTION_PREVIEW_LIMIT = 140;
-const DOMAIN = "snippetlab.com";
+const DOMAIN = "serpify.io";
 
 const quickActions = [
   "Generate alternatives",
@@ -285,7 +285,7 @@ function LockedOverlay() {
 
 export default function Home() {
   const [title, setTitle] = useState(
-    "Launch SnippetLab: Fast Google SERP Preview Tool"
+    "Launch Serpify: Fast Google SERP Preview Tool"
   );
   const [description, setDescription] = useState(
     "Preview exactly how your page title and meta description render on Google, spot truncation, and keep CTR high with a calm, focused workflow."

@@ -17,9 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SnippetLab | Google SERP Preview",
+  title: "Serpify | Google SERP Preview",
   description:
-    "Preview and polish your Google search snippets with live counters and a desktop/mobile SERP view.",
+    "Serpify lets you preview and polish your Google search snippets with live counters and desktop/mobile SERP views.",
 };
 
 export default function RootLayout({

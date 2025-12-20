@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
@@ -11,10 +13,22 @@ const navLinkStyles =
 
 export function SiteHeader() {
   const { data: session } = useSession();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const userInitial =
     session?.user?.name?.[0]?.toUpperCase() ??
     session?.user?.email?.[0]?.toUpperCase() ??
     "U";
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
@@ -29,61 +43,63 @@ export function SiteHeader() {
           </div>
         </Link>
         <div className="flex flex-shrink-0 items-center justify-end gap-2 sm:gap-3">
-          <Link href="/pricing" className={`${navLinkStyles} hidden sm:inline-block`}>
+          <Link href="/pricing" className={navLinkStyles}>
             Pricing
           </Link>
+          <Button
+            asChild
+            size="sm"
+            className="px-3 text-[11px] sm:text-sm whitespace-nowrap"
+          >
+            <Link href="/pricing">Upgrade</Link>
+          </Button>
           {session ? (
-            <div className="flex items-center justify-end gap-2 sm:gap-3">
-              <div className="flex items-center gap-2 rounded-full border bg-white px-2.5 py-1.5 text-xs text-muted-foreground shadow-sm">
+            <div className="relative" ref={menuRef}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 px-2.5 text-xs sm:text-sm"
+                onClick={() => setMenuOpen((open) => !open)}
+              >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold shrink-0">
                   {userInitial}
                 </div>
-                <div className="hidden flex-col leading-tight sm:flex">
-                  <span className="text-foreground truncate max-w-[120px]">
-                    {session.user?.name ?? session.user?.email}
-                  </span>
-                  <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                    {(session.user?.plan ?? "free").toString()}
-                  </span>
+                <span className="hidden sm:inline-flex max-w-[120px] truncate">
+                  {session.user?.name ?? session.user?.email}
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </Button>
+              {menuOpen ? (
+                <div className="absolute right-0 mt-2 w-48 rounded-lg border bg-white p-2 shadow-md">
+                  <div className="mb-2 rounded-md bg-muted/60 px-3 py-2">
+                    <p className="text-sm font-semibold text-foreground truncate">
+                      {session.user?.name ?? session.user?.email}
+                    </p>
+                    <p className="text-xs uppercase text-muted-foreground">
+                      {(session.user?.plan ?? "free").toString()}
+                    </p>
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="flex items-center rounded-md px-3 py-2 text-sm hover:bg-muted"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    type="button"
+                    className="flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                  >
+                    Sign out
+                  </button>
                 </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="hidden px-3 text-xs sm:inline-flex sm:text-sm"
-              >
-                Sign out
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="px-2 text-[11px] sm:hidden"
-              >
-                Out
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="px-3 text-[11px] sm:text-sm whitespace-nowrap"
-              >
-                <Link href="/pricing">Upgrade</Link>
-              </Button>
+              ) : null}
             </div>
           ) : (
-            <>
-              <Link href="/login" className={navLinkStyles}>
-                Login
-              </Link>
-              <Button
-                asChild
-                size="sm"
-                className="ml-1 px-3 text-[11px] sm:ml-2 sm:text-sm whitespace-nowrap"
-              >
-                <Link href="/pricing">Upgrade</Link>
-              </Button>
-            </>
+            <Link href="/login" className={navLinkStyles}>
+              Login
+            </Link>
           )}
         </div>
       </div>

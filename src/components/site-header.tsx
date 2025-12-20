@@ -17,29 +17,29 @@ export function SiteHeader() {
     "U";
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-4 py-3">
+    <header className="sticky top-0 z-40 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-4 py-3 sm:gap-4">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-semibold shadow-sm overflow-hidden">
             <Image src="/logo.svg" alt="Serpify logo" width={40} height={40} priority />
           </div>
           <div className="leading-tight">
             <p className="text-lg font-semibold text-foreground">Serpify</p>
-            <p className="text-xs text-muted-foreground">Google SERP Preview</p>
+            <p className="text-xs text-muted-foreground hidden sm:block">Google SERP Preview</p>
           </div>
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-shrink-0 items-center justify-end gap-2 sm:gap-3">
           <Link href="/pricing" className={navLinkStyles}>
             Pricing
           </Link>
           {session ? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 rounded-full border bg-white px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
+            <div className="flex items-center justify-end gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 rounded-full border bg-white px-2.5 py-1.5 text-xs text-muted-foreground shadow-sm">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold shrink-0">
                   {userInitial}
                 </div>
-                <div className="flex flex-col leading-tight">
-                  <span className="text-foreground">
+                <div className="hidden flex-col leading-tight sm:flex">
+                  <span className="text-foreground truncate max-w-[120px]">
                     {session.user?.name ?? session.user?.email}
                   </span>
                   <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
@@ -47,10 +47,15 @@ export function SiteHeader() {
                   </span>
                 </div>
               </div>
-              <Button variant="ghost" onClick={() => signOut({ callbackUrl: "/" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="px-3"
+              >
                 Sign out
               </Button>
-              <Button asChild>
+              <Button asChild size="sm">
                 <Link href="/pricing">Upgrade</Link>
               </Button>
             </div>
@@ -59,7 +64,7 @@ export function SiteHeader() {
               <Link href="/login" className={navLinkStyles}>
                 Login
               </Link>
-              <Button asChild>
+              <Button asChild size="sm" className="ml-1 sm:ml-2">
                 <Link href="/pricing">Upgrade</Link>
               </Button>
             </>

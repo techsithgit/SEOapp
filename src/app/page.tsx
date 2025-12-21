@@ -40,6 +40,7 @@ import { cn } from "@/lib/utils";
 
 type Status = "Good" | "Too Long" | "Too Short";
 type RewriteRisk = "Low" | "Medium" | "High";
+type Reason = string;
 
 type WarningItem = {
   id: string;
@@ -85,6 +86,44 @@ function getCtrScore(title: string, description: string) {
   if (/ ?[:\-|–] /.test(title)) score += 5;
   score = Math.min(100, Math.max(30, score));
   return score;
+}
+
+function getRewriteReasons(title: string, description: string): Reason[] {
+  const reasons: Reason[] = [];
+  if (title.length > TITLE_MAX_CHARS) {
+    reasons.push("Title likely to be truncated on desktop.");
+  }
+  if (description.length > DESCRIPTION_MAX_CHARS) {
+    reasons.push("Description exceeds typical desktop limits.");
+  }
+  if (title.length < TITLE_MIN_CHARS) {
+    reasons.push("Add more context to the title for clarity.");
+  }
+  if (description.length < DESCRIPTION_MIN_CHARS) {
+    reasons.push("Description can include a clearer benefit/CTA.");
+  }
+  if (reasons.length === 0) reasons.push("Within safe length ranges.");
+  return reasons;
+}
+
+function getCtrReasons(title: string, description: string): Reason[] {
+  const reasons: Reason[] = [];
+  if (title.length >= 45 && title.length <= 65) {
+    reasons.push("Title length is scannable and keyword-ready.");
+  } else {
+    reasons.push("Adjust title length to ~55–65 characters.");
+  }
+  if (description.length >= 120 && description.length <= 155) {
+    reasons.push("Description fits common SERP viewports.");
+  } else {
+    reasons.push("Keep description within 120–155 characters.");
+  }
+  if (/ ?[:\-|–] /.test(title)) {
+    reasons.push("Title uses a divider, improving clarity.");
+  } else {
+    reasons.push("Consider a divider (| or –) to separate hooks.");
+  }
+  return reasons;
 }
 
 const charWidthMap: Record<string, number> = {
@@ -265,6 +304,8 @@ function PreviewBlock({
   status,
   rewriteRisk,
   ctrScore,
+  rewriteReasons,
+  ctrReasons,
 }: {
   title: string;
   description: string;
@@ -272,6 +313,8 @@ function PreviewBlock({
   status: Status;
   rewriteRisk: RewriteRisk;
   ctrScore: number;
+  rewriteReasons: Reason[];
+  ctrReasons: Reason[];
 }) {
   const riskColors: Record<RewriteRisk, string> = {
     Low: "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -307,6 +350,24 @@ function PreviewBlock({
         <Badge variant="secondary" className="border px-3 py-1 text-xs font-medium">
           CTR score: {ctrScore}/100
         </Badge>
+      </div>
+      <div className="grid gap-2 pt-1 text-xs text-muted-foreground sm:grid-cols-2">
+        <div>
+          <p className="font-semibold text-foreground">Rewrite hints</p>
+          <ul className="list-disc pl-4">
+            {rewriteReasons.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="font-semibold text-foreground">CTR hints</p>
+          <ul className="list-disc pl-4">
+            {ctrReasons.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
@@ -399,6 +460,11 @@ function HomeContent() {
     [title, description]
   );
   const ctrScore = useMemo(() => getCtrScore(title, description), [title, description]);
+  const rewriteReasons = useMemo(
+    () => getRewriteReasons(title, description),
+    [title, description]
+  );
+  const ctrReasons = useMemo(() => getCtrReasons(title, description), [title, description]);
 
   const warnings: WarningItem[] = useMemo(() => {
     const issues: WarningItem[] = [];
@@ -642,6 +708,8 @@ function HomeContent() {
                         status={titleStatus}
                         rewriteRisk={rewriteRisk}
                         ctrScore={ctrScore}
+                        rewriteReasons={rewriteReasons}
+                        ctrReasons={ctrReasons}
                       />
                     </TabsContent>
                     <TabsContent value="mobile" className="mt-4">
@@ -654,6 +722,8 @@ function HomeContent() {
                             status={titleStatus}
                             rewriteRisk={rewriteRisk}
                             ctrScore={ctrScore}
+                            rewriteReasons={rewriteReasons}
+                            ctrReasons={ctrReasons}
                           />
                         </div>
                         <LockedOverlay isPro={isPro} />

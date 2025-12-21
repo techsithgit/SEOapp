@@ -27,8 +27,10 @@ import { getServerSession } from "next-auth";
 export default async function SnippetDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: string } | Promise<{ id: string }>;
 }) {
+  const resolvedParams = await params;
+  const snippetId = resolvedParams.id;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return (
@@ -51,7 +53,7 @@ export default async function SnippetDetailPage({
   }
 
   const snippet = await prisma.snippet.findFirst({
-    where: { id: params.id, userId: session.user.id },
+    where: { id: snippetId, userId: session.user.id },
     include: { variants: { orderBy: { updatedAt: "desc" } } },
   });
 

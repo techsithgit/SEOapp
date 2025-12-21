@@ -2,11 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 
-import {
-  createVariant,
-  updateVariant,
-  updateSnippet,
-} from "@/app/snippets/actions";
+import { createVariant, updateVariant, updateSnippet } from "@/app/snippets/actions";
 import { DeleteSnippetButton, DeleteVariantButton } from "@/app/snippets/delete-buttons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,6 +56,21 @@ export default async function SnippetDetailPage({
     notFound();
   }
 
+  const updateSnippetAction = async (formData: FormData) => {
+    "use server";
+    await updateSnippet(snippetId, formData);
+  };
+
+  const createVariantAction = async (formData: FormData) => {
+    "use server";
+    await createVariant(snippetId, formData);
+  };
+
+  const updateVariantAction = async (variantId: string, formData: FormData) => {
+    "use server";
+    await updateVariant(snippetId, variantId, formData);
+  };
+
   return (
     <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-8">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -80,7 +91,7 @@ export default async function SnippetDetailPage({
           <CardDescription>Edit and save your snippet.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form action={updateSnippet.bind(null, snippet.id)} className="space-y-4">
+          <form action={updateSnippetAction} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Page title</Label>
               <Input id="title" name="title" defaultValue={snippet.title} required />
@@ -127,10 +138,7 @@ export default async function SnippetDetailPage({
           <CardDescription>Create alternatives for this snippet.</CardDescription>
         </CardHeader>
           <CardContent className="space-y-4">
-            <form
-              action={createVariant.bind(null, snippet.id)}
-              className="grid gap-3 md:grid-cols-2"
-          >
+            <form action={createVariantAction} className="grid gap-3 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="variant-title">Variant title</Label>
               <Input id="variant-title" name="title" placeholder="Variant title..." required />
@@ -206,7 +214,7 @@ export default async function SnippetDetailPage({
                     >
                       <form
                         className="grid gap-3 md:grid-cols-2"
-                        action={updateVariant.bind(null, snippet.id, variant.id)}
+                        action={(formData) => updateVariantAction(variant.id, formData)}
                       >
                         <div className="space-y-2 md:col-span-2">
                           <Label htmlFor={`title-${variant.id}`}>Title</Label>

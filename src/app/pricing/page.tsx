@@ -1,4 +1,5 @@
 import { Check, Lock } from "lucide-react";
+import { getServerSession } from "next-auth";
 
 import {
   Card,
@@ -10,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { authOptions } from "@/lib/auth";
 
 const tiers = [
   {
@@ -51,7 +53,10 @@ const tiers = [
   },
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const session = await getServerSession(authOptions);
+  const currentPlan = (session?.user?.plan ?? "free").toString().toLowerCase();
+
   return (
     <div className="mx-auto max-w-[1200px] px-4 py-10 lg:py-14">
       <div className="text-center">
@@ -80,6 +85,11 @@ export default function PricingPage() {
                     {tier.badge}
                   </Badge>
                 ) : null}
+                {currentPlan === tier.name.toLowerCase() ? (
+                  <Badge variant="secondary" className="uppercase">
+                    Current plan
+                  </Badge>
+                ) : null}
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-semibold">{tier.price}</span>
@@ -90,10 +100,13 @@ export default function PricingPage() {
             <CardContent className="space-y-4">
               <Button
                 className="w-full"
-                variant={tier.name === "Pro" ? "default" : "outline"}
+                variant={
+                  currentPlan === tier.name.toLowerCase() ? "secondary" : "outline"
+                }
+                disabled={currentPlan === tier.name.toLowerCase()}
               >
                 {tier.name === "Pro" ? <Lock className="mr-2 h-4 w-4" /> : null}
-                {tier.cta}
+                {currentPlan === tier.name.toLowerCase() ? "Selected" : tier.cta}
               </Button>
               <Separator />
               <ul className="space-y-2 text-sm text-foreground">

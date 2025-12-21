@@ -19,7 +19,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-sm">
         <CardHeader className="space-y-2">
           <CardTitle className="text-2xl font-semibold text-foreground">
-            Sign in to SnippetLab
+            Sign in to Serpify
           </CardTitle>
           <CardDescription>
             Use Google to continue. No passwords required.

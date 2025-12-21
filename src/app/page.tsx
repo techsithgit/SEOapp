@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { AlertTriangle, Info, Lock, Sparkles } from "lucide-react";
 
 import {
@@ -37,6 +39,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type Status = "Good" | "Too Long" | "Too Short";
+type RewriteRisk = "Low" | "Medium" | "High";
 
 type WarningItem = {
   id: string;
@@ -61,6 +64,28 @@ const quickActions = [
   "Shorten title",
   "Add keyword",
 ];
+
+function getRewriteRisk(title: string, description: string): RewriteRisk {
+  const titleLen = title.length;
+  const descLen = description.length;
+  if (titleLen === 0 && descLen === 0) return "Low";
+  if (titleLen > TITLE_MAX_CHARS + 5 || descLen > DESCRIPTION_MAX_CHARS + 10) {
+    return "High";
+  }
+  if (titleLen < TITLE_MIN_CHARS || descLen < DESCRIPTION_MIN_CHARS - 20) {
+    return "Medium";
+  }
+  return "Low";
+}
+
+function getCtrScore(title: string, description: string) {
+  let score = 60;
+  if (title.length >= 45 && title.length <= 65) score += 10;
+  if (description.length >= 120 && description.length <= 155) score += 10;
+  if (/ ?[:\-|–] /.test(title)) score += 5;
+  score = Math.min(100, Math.max(30, score));
+  return score;
+}
 
 const charWidthMap: Record<string, number> = {
   i: 4.5,
@@ -238,14 +263,24 @@ function PreviewBlock({
   description,
   url,
   status,
+  rewriteRisk,
+  ctrScore,
 }: {
   title: string;
   description: string;
   url: string;
   status: Status;
+  rewriteRisk: RewriteRisk;
+  ctrScore: number;
 }) {
+  const riskColors: Record<RewriteRisk, string> = {
+    Low: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    Medium: "bg-amber-100 text-amber-800 border-amber-200",
+    High: "bg-red-100 text-red-700 border-red-200",
+  };
+
   return (
-    <div className="rounded-xl border bg-white p-5 shadow-sm">
+    <div className="rounded-xl border bg-white p-5 shadow-sm space-y-3">
       <div className="mb-3 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-semibold">
           SL
@@ -262,11 +297,23 @@ function PreviewBlock({
       <p className="mt-2 text-[15px] leading-relaxed text-[#4d5156]">
         {description}
       </p>
+      <div className="flex flex-wrap items-center gap-2 pt-2">
+        <Badge
+          variant="outline"
+          className={cn("border px-3 py-1 text-xs font-medium", riskColors[rewriteRisk])}
+        >
+          Rewrite risk: {rewriteRisk}
+        </Badge>
+        <Badge variant="secondary" className="border px-3 py-1 text-xs font-medium">
+          CTR score: {ctrScore}/100
+        </Badge>
+      </div>
     </div>
   );
 }
 
-function LockedOverlay() {
+function LockedOverlay({ isPro }: { isPro: boolean }) {
+  if (isPro) return null;
   return (
     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-lg border bg-white/85 backdrop-blur">
       <p className="text-center text-sm font-semibold text-foreground">
@@ -284,14 +331,32 @@ function LockedOverlay() {
 }
 
 export default function Home() {
-  const [title, setTitle] = useState(
-    "Launch Serpify: Fast Google SERP Preview Tool"
-  );
-  const [description, setDescription] = useState(
-    "Preview exactly how your page title and meta description render on Google, spot truncation, and keep CTR high with a calm, focused workflow."
-  );
-  const [slug, setSlug] = useState("blog/google-serp-preview-tool");
+  const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const userPlan = (session?.user?.plan ?? "free").toString().toLowerCase();
+  const isPro = userPlan === "pro" || userPlan === "agency";
+  const initialTitle =
+    searchParams.get("title") ||
+    "Launch Serpify: Fast Google SERP Preview Tool";
+  const initialDescription =
+    searchParams.get("description") ||
+    "Preview exactly how your page title and meta description render on Google, spot truncation, and keep CTR high with a calm, focused workflow.";
+  const initialSlug = searchParams.get("slug") || "blog/google-serp-preview-tool";
+
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
+  const [slug, setSlug] = useState(initialSlug);
   const [activePreview, setActivePreview] = useState("desktop");
+
+  useEffect(() => {
+    const newTitle = searchParams.get("title");
+    const newDescription = searchParams.get("description");
+    const newSlug = searchParams.get("slug");
+
+    if (newTitle) setTitle(newTitle);
+    if (newDescription) setDescription(newDescription);
+    if (newSlug) setSlug(newSlug);
+  }, [searchParams]);
 
   const cleanSlug = slug.replace(/^\/+/, "");
   const fullUrl = `${DOMAIN}/${cleanSlug || "your-page"}`;
@@ -328,6 +393,12 @@ export default function Home() {
     () => truncateByChars(description, MOBILE_DESCRIPTION_PREVIEW_LIMIT),
     [description]
   );
+
+  const rewriteRisk = useMemo(
+    () => getRewriteRisk(title, description),
+    [title, description]
+  );
+  const ctrScore = useMemo(() => getCtrScore(title, description), [title, description]);
 
   const warnings: WarningItem[] = useMemo(() => {
     const issues: WarningItem[] = [];
@@ -490,29 +561,46 @@ export default function Home() {
                   <div className="space-y-3 rounded-lg border bg-gradient-to-r from-slate-50 to-white p-4">
                     <div className="flex items-center justify-between gap-2 text-sm font-medium">
                       <span>Quick actions</span>
-                      <Badge variant="outline" className="gap-1">
-                        <Lock className="h-3 w-3" />
-                        Pro
-                      </Badge>
+                      {isPro ? (
+                        <Badge variant="secondary" className="uppercase">
+                          Unlocked
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="gap-1">
+                          <Lock className="h-3 w-3" />
+                          Pro
+                        </Badge>
+                      )}
                     </div>
                     <div className="grid gap-2 sm:grid-cols-2">
-                      {quickActions.map((action) => (
-                        <Tooltip key={action}>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="outline"
-                              aria-disabled
-                              className="justify-start gap-2 border-dashed bg-white text-left text-sm font-medium text-muted-foreground"
-                            >
-                              <Lock className="h-4 w-4" />
-                              {action}
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Available on Pro. Upgrade to unlock.
-                          </TooltipContent>
-                        </Tooltip>
-                      ))}
+                      {quickActions.map((action) =>
+                        isPro ? (
+                          <Button
+                            key={action}
+                            variant="outline"
+                            className="justify-start gap-2 bg-white text-left text-sm font-medium"
+                          >
+                            <Sparkles className="h-4 w-4 text-amber-500" />
+                            {action}
+                          </Button>
+                        ) : (
+                          <Tooltip key={action}>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                aria-disabled
+                                className="justify-start gap-2 border-dashed bg-white text-left text-sm font-medium text-muted-foreground"
+                              >
+                                <Lock className="h-4 w-4" />
+                                {action}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              Available on Pro. Upgrade to unlock.
+                            </TooltipContent>
+                          </Tooltip>
+                        )
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -552,6 +640,8 @@ export default function Home() {
                         description={truncatedDescriptionDesktop}
                         url={fullUrl}
                         status={titleStatus}
+                        rewriteRisk={rewriteRisk}
+                        ctrScore={ctrScore}
                       />
                     </TabsContent>
                     <TabsContent value="mobile" className="mt-4">
@@ -562,16 +652,19 @@ export default function Home() {
                             description={truncatedDescriptionMobile}
                             url={fullUrl}
                             status={titleStatus}
+                            rewriteRisk={rewriteRisk}
+                            ctrScore={ctrScore}
                           />
                         </div>
-                        <LockedOverlay />
+                        <LockedOverlay isPro={isPro} />
                       </div>
                     </TabsContent>
                   </Tabs>
 
                   <div className="rounded-lg border bg-muted/60 px-4 py-3 text-xs text-muted-foreground">
-                    Desktop preview stays unlocked. Upgrade to test mobile safely
-                    and avoid mid-SERP cutoffs.
+                    {isPro
+                      ? "Mobile and desktop previews are fully unlocked on your plan."
+                      : "Desktop preview stays unlocked. Upgrade to test mobile safely and avoid mid-SERP cutoffs."}
                   </div>
                 </CardContent>
               </Card>

@@ -43,6 +43,9 @@ export function SiteHeader() {
           </div>
         </Link>
         <div className="flex flex-shrink-0 items-center justify-end gap-2 sm:gap-3">
+          <Link href="/snippets" className={navLinkStyles}>
+            Snippets
+          </Link>
           <Link href="/pricing" className={navLinkStyles}>
             Pricing
           </Link>

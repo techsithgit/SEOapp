@@ -20,6 +20,24 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.plan = (user as { plan?: string }).plan ?? "free";
+        token.email = user.email;
+      }
+      // Dev/testing override: force a specific email to Pro when set
+      if (
+        process.env.DEV_FORCE_PRO_EMAIL &&
+        token.email === process.env.DEV_FORCE_PRO_EMAIL
+      ) {
+        token.plan = "pro";
+      }
+      // Refresh plan from the database to pick up changes without re-login
+      if (token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { plan: true },
+        });
+        if (dbUser?.plan) {
+          token.plan = dbUser.plan;
+        }
       }
       return token;
     },

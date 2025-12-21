@@ -27,10 +27,9 @@ import { getServerSession } from "next-auth";
 export default async function SnippetDetailPage({
   params,
 }: {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const resolvedParams = await params;
-  const snippetId = resolvedParams.id;
+  const { id: snippetId } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return (

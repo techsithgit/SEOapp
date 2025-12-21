@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AlertTriangle, Info, Lock, Sparkles } from "lucide-react";
@@ -330,7 +330,7 @@ function LockedOverlay({ isPro }: { isPro: boolean }) {
   );
 }
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const userPlan = (session?.user?.plan ?? "free").toString().toLowerCase();
@@ -677,5 +677,13 @@ export default function Home() {
         </div>
       </div>
     </TooltipProvider>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }

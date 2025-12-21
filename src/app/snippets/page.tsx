@@ -1,7 +1,8 @@
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 
-import { deleteSnippet } from "@/app/snippets/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { DeleteSnippetButton } from "@/app/snippets/delete-buttons";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
@@ -54,6 +56,8 @@ async function createSnippetAction(formData: FormData) {
       },
     });
   }
+  revalidatePath("/snippets");
+  redirect("/snippets");
 }
 
 export default async function SnippetsPage() {
@@ -171,11 +175,7 @@ export default async function SnippetsPage() {
                     >
                       <Link href={`/snippets/${snippet.id}`}>Edit</Link>
                     </Button>
-                    <form action={deleteSnippet.bind(null, snippet.id)}>
-                      <Button variant="destructive" size="sm" className="whitespace-nowrap">
-                        Delete
-                      </Button>
-                    </form>
+                    <DeleteSnippetButton id={snippet.id} />
                   </div>
                 </div>
               ))}

@@ -4,11 +4,10 @@ import { Pencil } from "lucide-react";
 
 import {
   createVariant,
-  deleteSnippet,
-  deleteVariant,
   updateVariant,
   updateSnippet,
 } from "@/app/snippets/actions";
+import { DeleteSnippetButton, DeleteVariantButton } from "@/app/snippets/delete-buttons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,11 +24,11 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 
-type SnippetPageProps = {
+export default async function SnippetDetailPage({
+  params,
+}: {
   params: { id: string };
-};
-
-export default async function SnippetDetailPage({ params }: SnippetPageProps) {
+}) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return (
@@ -106,24 +105,20 @@ export default async function SnippetDetailPage({ params }: SnippetPageProps) {
               <Button type="submit">Save changes</Button>
             </div>
           </form>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link
-                  href={`/?title=${encodeURIComponent(snippet.title)}&description=${encodeURIComponent(snippet.description)}&slug=${encodeURIComponent(snippet.slug)}`}
-                >
-                  Open in SERP tool
-                </Link>
-              </Button>
-              <form action={deleteSnippet.bind(null, snippet.id)} className="inline">
-                <Button variant="destructive" size="sm">
-                  Delete
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link
+                    href={`/?title=${encodeURIComponent(snippet.title)}&description=${encodeURIComponent(snippet.description)}&slug=${encodeURIComponent(snippet.slug)}`}
+                  >
+                    Open in SERP tool
+                  </Link>
                 </Button>
-              </form>
+                <DeleteSnippetButton id={snippet.id} />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
       <Card className="shadow-sm">
         <CardHeader>
@@ -191,30 +186,19 @@ export default async function SnippetDetailPage({ params }: SnippetPageProps) {
                           Load in tool
                         </Link>
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="whitespace-nowrap"
-                        asChild
-                      >
-                        <Link href={`#variant-edit-${variant.id}`}>
-                          <Pencil className="mr-1 h-4 w-4" />
-                          Edit inline
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="whitespace-nowrap"
-                        asChild
-                      >
-                      <form action={deleteVariant.bind(null, snippet.id, variant.id)}>
-                        <Button variant="destructive" size="sm" className="whitespace-nowrap">
-                          Delete
-                        </Button>
-                      </form>
-                      </Button>
-                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="whitespace-nowrap"
+                      asChild
+                    >
+                      <Link href={`#variant-edit-${variant.id}`}>
+                        <Pencil className="mr-1 h-4 w-4" />
+                        Edit inline
+                      </Link>
+                    </Button>
+                    <DeleteVariantButton snippetId={snippet.id} variantId={variant.id} />
+                  </div>
                     <div
                       id={`variant-edit-${variant.id}`}
                       className="sm:col-span-3 rounded-lg border bg-muted/60 p-4"
